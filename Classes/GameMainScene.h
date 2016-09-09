@@ -9,6 +9,7 @@ private:
     // 変数
     bool initFlag;
     std::chrono::high_resolution_clock::time_point startCount;
+    cocos2d::Sprite *note;
 
     bool main();
     void graph();

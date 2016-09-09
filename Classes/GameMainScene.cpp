@@ -17,6 +17,15 @@ bool GameMain::init(){
     // 初期化
     if ( !Layer::init() ) return false;
 
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+
+    // ノーツの設定
+    note = Sprite::create("res/img/note.png");
+    note->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    this->addChild(note, 1);
+    note->setVisible(false);
+
     // ゲームカウント取得
     startCount = std::chrono::high_resolution_clock::now();
 
@@ -44,20 +53,11 @@ void GameMain::graph(){
 void GameMain::keyBinding(){
     auto listener = cocos2d::EventListenerKeyboard::create();
     listener->onKeyPressed = [&](cocos2d::EventKeyboard::KeyCode keyCode, Event* event){
-        if( keyCode == EventKeyboard::KeyCode::KEY_ESCAPE ){
-            endGame();
-        }
-        if( keyCode == EventKeyboard::KeyCode::KEY_ENTER ){
-            changeScene();
-        }
+        if( keyCode == EventKeyboard::KeyCode::KEY_ESCAPE ) endGame();
+        if( keyCode == EventKeyboard::KeyCode::KEY_ENTER )  changeScene();
+        if( keyCode == EventKeyboard::KeyCode::KEY_SPACE )  judgeTiming();
     };
     Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
-}
-
-/* タイトル画面へ戻る */
-void GameMain::changeScene(){
-    auto scene = HelloWorld::createScene();
-    Director::getInstance()->replaceScene(scene);
 }
 
 /* 終了処理 */
@@ -67,6 +67,17 @@ void GameMain::endGame(){
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     exit(0);
 #endif
+}
+
+/* タイトル画面へ戻る */
+void GameMain::changeScene(){
+    auto scene = HelloWorld::createScene();
+    Director::getInstance()->replaceScene(scene);
+}
+
+/* タイミング判定 */
+void GameMain::judgeTiming(){
+    note->setVisible(false);
 }
 
 /* 1ms ごとに表示 */
@@ -79,17 +90,12 @@ void GameMain::updateGameCount(float delta){
 
 /* ノーツ描画 */
 void GameMain::drawNote(){
-    auto visibleSize = Director::getInstance()->getVisibleSize();
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();
-
     static bool doneFlag = false;
 
     // 一度だけ実行する
     if(!doneFlag){
         // ノーツ画像描画
-        auto note = Sprite::create("res/img/note.png");
-        note->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-        this->addChild(note, 1);
+        note->setVisible(true);
 
         doneFlag = true;
     }
